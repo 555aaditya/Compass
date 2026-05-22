@@ -3,7 +3,7 @@ import DashboardLayout from './components/DashboardLayout';
 import AuthHeader from './components/AuthHeader';
 import FilterSidebar from './components/FilterSidebar';
 import CompanyGrid from './components/CompanyGrid';
-import './theme.css';
+
 import './App.css';
 
 function App() {
