@@ -5,13 +5,14 @@
   background-color: #0d1117;
   color: #c9d1d9;
   font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.85rem;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.5rem;
   border-bottom: 1px solid #30363d;
 }
 
@@ -24,14 +25,14 @@
 .dashboard-left-col {
   width: 30%;
   min-width: 300px;
-  padding: 2rem;
+  padding: 1.5rem;
   border-right: 1px solid #30363d;
   overflow-y: auto;
 }
 
 .dashboard-right-col {
   width: 70%;
-  padding: 2rem;
+  padding: 1.5rem;
   overflow-y: auto;
 }
 
