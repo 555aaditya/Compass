@@ -1,0 +1,144 @@
+# ─── WHO YOU ARE ──────────────────────────────────────────
+email: "555aaditya@proton.me"
+
+# ─── ROLES ────────────────────────────────────────────────
+roles:
+  titles:
+    - "Software Engineer"
+    - "SWE"
+    - "Backend Engineer"
+    - "Frontend Engineer"
+    - "Full Stack Engineer"
+    - "Data Engineer"
+    - "ML Engineer"
+    - "Data Scientist"
+    - "AI Engineer"
+    - "Research Engineer"
+
+  include_keywords:
+    - "junior"
+    - "entry level"
+    - "new grad"
+    - "graduate"
+    - "0-2 years"
+    - "fresher"
+    - "associate"
+
+  exclude_keywords:
+    - "senior"
+    - "staff"
+    - "principal"
+    - "lead"
+    - "manager"
+    - "director"
+    - "5+ years"
+    - "7+ years"
+    - "10+ years"
+
+# ─── EXPERIENCE ───────────────────────────────────────────
+experience:
+  min_years: 0
+  max_years: 2
+
+# ─── LOCATIONS ────────────────────────────────────────────
+locations:
+  remote: true          # include remote / work from anywhere
+
+  india:
+    enabled: true
+    cities:
+      - Bangalore
+      - Hyderabad
+      - Pune
+      - Mumbai
+      - Gurgaon
+      - Noida
+      - Delhi NCR
+      - Chennai
+
+  international:
+    enabled: true
+    countries:
+      - USA
+      - UK
+      - Ireland
+      - Poland
+      - Singapore
+      - Hong Kong
+      - Thailand
+      - Australia
+      - New Zealand
+
+  unspecified_location: include   # include / exclude / flag
+
+# ─── COMPANIES ────────────────────────────────────────────
+# Add or remove freely. Group labels are just for your reference.
+companies:
+
+  maang:
+    - Google
+    - Meta
+    - Apple
+    - Amazon
+    - Netflix
+
+  tier2_product:
+    - Microsoft
+    - Stripe
+    - Uber
+    - Airbnb
+    - Salesforce
+    - LinkedIn
+    - Snap
+    - Spotify
+    - Adobe
+    - Atlassian
+    - Figma
+    - Notion
+    - Canva
+    - Databricks
+    - Snowflake
+    - Palantir
+    - OpenAI
+    - Anthropic
+    - Cohere
+    - Mistral
+    - Hugging Face
+
+  finance:
+    - JP Morgan
+    - Goldman Sachs
+    - Morgan Stanley
+    - Citadel
+    - Jane Street
+    - Two Sigma
+    - BlackRock
+    - Deutsche Bank
+    - HSBC
+    - Barclays
+    - Revolut
+    - Wise
+
+  india_product:
+    - Flipkart
+    - Meesho
+    - Swiggy
+    - Zomato
+    - PhonePe
+    - Razorpay
+    - Groww
+    - CRED
+    - Dream11
+    - InMobi
+    - Freshworks
+    - Zoho
+    - Druva
+    - Browserstack
+    - Postman
+
+# ─── ALERT SETTINGS ───────────────────────────────────────
+alerts:
+  send_when: "new_roles_only"   # new_roles_only | always
+  min_score: 6                  # 1–10, roles below this are skipped
+  batch_window_minutes: 30      # collect roles for 30 min then send one email
+                                # (avoids getting 20 separate emails at once)

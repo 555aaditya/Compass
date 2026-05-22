@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Databricks",
+    "ats": "greenhouse",
+    "source_url": "https://boards.greenhouse.io/databricks"
+  },
+  {
+    "name": "Figma",
+    "ats": "greenhouse",
+    "source_url": "https://boards.greenhouse.io/figma"
+  },
+  {
+    "name": "Anthropic",
+    "ats": "ashby",
+    "source_url": "https://jobs.ashbyhq.com/anthropic"
+  }
+]
