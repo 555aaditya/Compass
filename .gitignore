@@ -40,3 +40,6 @@ server.log
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Documentation
+docs/
