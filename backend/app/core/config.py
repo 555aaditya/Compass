@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     master_resume_path: Path = REPO_ROOT / "resumes" / "master" / "main.tex"
     generated_resumes_path: Path = REPO_ROOT / "resumes" / "generated"
 
+    claim_overrides_path: Path = REPO_ROOT / "resumes" / "claim_overrides.json"
+
     github_token: str = ""
 
     telegram_bot_token: str = ""
@@ -45,7 +47,7 @@ class Settings(BaseSettings):
     auto_generate_resumes: bool = True
     require_resume_approval: bool = True
 
-    @field_validator("wiki_path", "master_resume_path", "generated_resumes_path", mode="after")
+    @field_validator("wiki_path", "master_resume_path", "generated_resumes_path", "claim_overrides_path", mode="after")
     @classmethod
     def _expand(cls, v: Path) -> Path:
         v = v.expanduser()

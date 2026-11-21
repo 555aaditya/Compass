@@ -187,3 +187,10 @@ def test_finalize_success_then_approval_gate(db, env, monkeypatch):
     with pytest.raises(ApprovalBlocked, match="contradict"):
         service.approve_resume(db, rv2)
     assert service.approve_resume(db, rv2, force=True).approved
+
+
+def test_candidate_overrides_are_accepted_not_blocking():
+    g = ClaimGuard(PROFILE, [{"phrase": "quarterly goal tracking", "reason": "goes live next week"}])
+    v = {x.text.lower(): x for x in g.check("Built quarterly goal tracking with Redis")}
+    assert v["quarterly goal tracking"].severity == "accepted" and "next week" in v["quarterly goal tracking"].reason
+    assert v["redis"].severity == "error"  # only what the candidate vouched for is relaxed
