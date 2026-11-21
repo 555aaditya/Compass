@@ -8,15 +8,20 @@ from datetime import datetime, timezone
 from app.services.job_matching.preferences import Preferences
 
 SENIOR_RE = re.compile(
-    r"\b(senior|sr\.?|staff|principal|lead|manager|director|head of|vp|vice president|architect|"
+    r"\b(senior|sr\.?|(?<!technical )staff|principal|lead|manager|director|head of|vp|vice president|architect|"
     r"distinguished|fellow|sde[\s-]*(?:iii|3|iv|4)|sde[\s-]*ii\b|sde[\s-]*2|engineer\s*(?:iii|iv|ii)\b|level\s*[3-9])\b", re.I)
 NON_TECH_RE = re.compile(
     r"\b(sales|marketing|recruit\w*|talent|account (?:executive|manager)|customer success|support specialist|"
     r"legal|counsel|finance|accountant|payroll|hr |human resources|people partner|designer|writer|"
     r"business development|operations manager|office|executive assistant|content|seo|social media|"
     r"product manager|program manager|analyst relations|solutions? consultant)\b", re.I)
-TECH_TERMS_RE = re.compile(r"\b(engineer|developer|sde|software|programmer|devops|sre|data|ml|ai|research|"
-                           r"platform|backend|frontend|full[\s-]?stack|member of technical staff|swe)\b", re.I)
+NON_SWE_RE = re.compile(
+    r"\b(customer success|customer support|technical support|cloud support|support (?:engineer|specialist|analyst)|"
+    r"sales engineer|solutions? (?:engineer|architect|consultant)|professional services|technical account|"
+    r"implementation (?:engineer|consultant|specialist)|field engineer|pre[\s-]?sales|forward deployed account)\b", re.I)
+TECH_TERMS_RE = re.compile(r"\b(engineer|engineering|developer|sde|sdet|software|programmer|devops|sre|data|ml|ai|"
+                           r"research|scientist|platform|backend|back-end|frontend|front-end|full[\s-]?stack|"
+                           r"member of technical staff|swe|mts|security|qa|automation)\b", re.I)
 FRESHER_RE = re.compile(r"\b(fresher|freshers|new[\s-]?grad(?:uate)?s?|recent graduate|entry[\s-]?level|"
                         r"graduate|campus|early career|0\s*(?:-|–|to)\s*[12]\s*years?|no experience required|intern)\b", re.I)
 YEARS_RE = re.compile(
@@ -109,10 +114,12 @@ def evaluate(title: str, location: str, description: str, posted_at: datetime | 
     if SENIOR_RE.search(title):
         e.reject(f"Seniority in title: '{title}'")
     # non-technical
-    if NON_TECH_RE.search(title) and not re.search(r"\b(engineer|developer|sde|software)\b", title, re.I):
+    if NON_SWE_RE.search(title):
+        e.reject("Customer-facing / support role, not software engineering")
+    elif NON_TECH_RE.search(title) and not re.search(r"\b(engineer|developer|sde|software)\b", title, re.I):
         e.reject("Non-technical role")
     elif not TECH_TERMS_RE.search(title):
-        e.flag("Title does not clearly describe a technical role")
+        e.reject("Title is not an engineering role")
     if UNPAID_RE.search(blob) and not prefs.allow_unpaid:
         e.reject("Unpaid role")
 
