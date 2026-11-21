@@ -6,8 +6,9 @@ node_modules/
 dist/
 .pytest_cache/
 .DS_Store
-data/*.db
+data/*.db*
 resumes/generated/*
 !resumes/generated/.gitkeep
 resumes/master/*
 !resumes/master/.gitkeep
+*.db-*
