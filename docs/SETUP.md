@@ -3,7 +3,7 @@
 ## Requirements
 Python 3.11+, Node 20+. Optional: a LaTeX distribution (`latexmk`/`pdflatex`/`xelatex`) and `pdftotext` (poppler).
 Without LaTeX, everything works except PDF compilation; `finalize` reports "No LaTeX compiler found".
-On macOS: `brew install --cask basictex` (then `sudo tlmgr install latexmk enumitem titlesec marvosym fancyhdr`) and `brew install poppler`.
+On macOS: `brew install --cask basictex` (then `sudo tlmgr install latexmk preprint enumitem titlesec marvosym fancyhdr`) and `brew install poppler`.
 
 ## Install
 ```bash

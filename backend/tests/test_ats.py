@@ -103,3 +103,11 @@ def test_keyword_coverage_and_report(tmp_path):
     assert "Terraform" in cov["claimed_without_evidence"]  # in the resume text but not backed by the profile
     md = rpt.to_markdown(rep)
     assert "not an ATS score" in md and "Kubernetes" in md
+
+
+def test_empty_header_footer_and_preamble_macros_are_not_flagged(tmp_path):
+    tex = TEX.replace("\\begin{document}", "\\newcommand{\\resumeItem}[1]{\\item #1}\\fancyhf{}\\fancyfoot{}\\begin{document}")
+    rep = validator.validate(tex, make_pdf(tmp_path / "r.pdf", GOOD_LINES, LINKS))
+    assert status(rep, "layout_risks") == "pass" and status(rep, "content_matches_source") == "pass"
+    flagged = TEX.replace("\\begin{document}", "\\fancyfoot{Page}\\begin{document}")
+    assert status(validator.validate(flagged, make_pdf(tmp_path / "r2.pdf", GOOD_LINES, LINKS)), "layout_risks") == "warn"

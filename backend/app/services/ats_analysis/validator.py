@@ -19,7 +19,7 @@ DATE = re.compile(r"((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.
 LAYOUT_RISKS = [(r"\\usepackage(?:\[[^\]]*\])?\{multicol\}|\\begin\{multicols\}|twocolumn", "multi-column layout"),
                 (r"\\includegraphics", "embedded image"), (r"\\begin\{minipage\}", "minipage (side-by-side layout)"),
                 (r"\\fbox|\\framebox|\\tcbox|tikzpicture", "text box / drawing"),
-                (r"\\fancyhead|\\fancyfoot|\\rhead|\\lhead|\\cfoot", "header/footer content"),
+                (r"\\(?:fancyhead|fancyfoot|rhead|lhead|cfoot|rfoot|lfoot|chead)(?:\[[^\]]*\])?\{[^}]", "header/footer content"),
                 (r"\\textcolor\{white\}|\\color\{white\}", "white text (hidden keywords)")]
 BAD_CHARS = re.compile(r"\ufffd|\(cid:\d+\)|[\ue000-\uf8ff]")
 
