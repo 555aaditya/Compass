@@ -1,11 +1,11 @@
 # Scheduled scan + notify without your computer. Resume tailoring stays local (needs your master resume + a Claude session).
-# Needs a PRIVATE repo, secrets TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, and Settings > Actions > Workflow permissions: read and write.
+# Secrets: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, QUANT_JOURNAL_TOKEN (fine-grained PAT, read-only Contents on Quant-Journal).
 # Untested: see docs/IMPLEMENTATION_STATUS.md.
 name: scan
 on:
   schedule: [{ cron: "30 3,15 * * *" }]   # 09:00 and 21:00 IST
   workflow_dispatch:
-permissions: { contents: write, pages: write, id-token: write }
+permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: scan, cancel-in-progress: false }
 jobs:
   scan:
@@ -20,16 +20,15 @@ jobs:
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4          # public wiki
-        with: { repository: 555aaditya/Quant-Journal, path: quant-journal }
-      - name: Restore state (database lives on the orphan branch "state")
-        run: |
-          mkdir -p data
-          git fetch origin state 2>/dev/null && git show origin/state:compass.db > data/compass.db || echo "no previous state"
+      - uses: actions/checkout@v4          # PRIVATE wiki: needs a fine-grained PAT (Contents: read) in QUANT_JOURNAL_TOKEN
+        with: { repository: 555aaditya/Quant-Journal, path: quant-journal, token: "${{ secrets.QUANT_JOURNAL_TOKEN }}" }
+      - name: Restore state (Actions cache: private to this repo, unlike a public branch)
+        uses: actions/cache/restore@v4
+        with: { path: data/compass.db, key: state-never-matches, restore-keys: "state-" }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip, cache-dependency-path: backend/requirements.txt }
       - run: pip install -r backend/requirements.txt
-      - run: cd backend && python -m app.cli sync && python -m app.cli scan
+      - run: cd backend && python -m app.cli sync > /dev/null && python -m app.cli scan   # sync output hidden: logs are public
       - name: Build read-only jobs page (jobs only; no profile, resumes or notes)
         run: cd backend && python -m app.cli snapshot --out ../site
       - uses: actions/upload-pages-artifact@v3
@@ -37,8 +36,5 @@ jobs:
       - uses: actions/deploy-pages@v4
         continue-on-error: true   # needs Settings > Pages > Source: GitHub Actions. The page is PUBLIC; see docs/SETUP.md
       - name: Save state
-        run: |
-          git config user.name "compass-bot" && git config user.email "compass-bot@users.noreply.github.com"
-          d=$(mktemp -d) && cp data/compass.db "$d/compass.db" && cd "$d" && git init -q -b state
-          git add compass.db && git commit -q -m "state $(date -u +%FT%TZ)"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state
+        uses: actions/cache/save@v4
+        with: { path: data/compass.db, key: "state-${{ github.run_id }}" }
