@@ -36,8 +36,8 @@ def tex_to_text(tex: str) -> str:
     if "\\begin{document}" in s:
         s = s.split("\\begin{document}", 1)[1].split("\\end{document}")[0]
     s = re.sub(r"\\href\{[^}]*\}", "", s)
-    s = re.sub(r"\\(?:vspace|hspace|setlength|titlerule|newpage|raggedright|small|large|Huge|scshape|normalsize|"
-               r"itshape|bfseries)\*?(?:\{[^}]*\})?", " ", s)
+    s = re.sub(r"\\(?:vspace|hspace|setlength)\*?\{[^}]*\}", " ", s)
+    s = re.sub(r"\\(?:titlerule|newpage|raggedright|small|large|Huge|scshape|normalsize|itshape|bfseries)\b\*?", " ", s)
     s = re.sub(r"\\begin\{[^}]*\}(?:\[[^\]]*\])?(?:\{[^}]*\})?|\\end\{[^}]*\}", " ", s)
     s = re.sub(r"\\(?:resumeSubHeadingListStart|resumeSubHeadingListEnd|resumeItemListStart|resumeItemListEnd)", " ", s)
     s = re.sub(r"\\(?:textbf|textit|emph|underline|small|section|resumeItem|resumeSubItem|resumeProjectHeading|"
