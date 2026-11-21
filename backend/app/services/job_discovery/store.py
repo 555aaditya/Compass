@@ -20,11 +20,14 @@ def slugify(s: str) -> str:
 
 def seed_companies(db: Session) -> int:
     n = 0
-    have = {c.name for c in db.scalars(select(Company))}
+    have = {c.name: c for c in db.scalars(select(Company))}
     rows = [(*v, True) for v in VERIFIED] + [
         (m, "manual", "", "india" if m in INDIA_MANUAL else "global", 5, False) for m in MANUAL]
     for name, ats, token, region, prio, enabled in rows:
         if name in have:
+            c = have[name]
+            if enabled and (c.ats == "manual" or (c.last_ok_at is None and (c.ats, c.board_token) != (ats, token))):
+                c.ats, c.board_token, c.enabled, c.region = ats, token, True, region  # newly supported board
             continue
         db.add(Company(name=name, slug=slugify(name), ats=ats, board_token=token, region=region,
                        priority=prio, enabled=enabled))
