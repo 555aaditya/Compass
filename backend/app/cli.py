@@ -28,6 +28,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("sync", help="sync the Quant-Journal wiki into the candidate profile")
     sub.add_parser("scan", help="scan sources, score jobs, prepare resumes, notify")
+    sp = sub.add_parser("snapshot", help="write a read-only static jobs page")
+    sp.add_argument("--out", default="../site")
     jl = sub.add_parser("jobs", help="list top jobs")
     jl.add_argument("--min-score", type=float, default=0)
     jl.add_argument("--limit", type=int, default=20)
@@ -50,6 +52,12 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"status": r.status, "pages": r.pages_seen, "added": r.added, "modified": r.modified,
                               "deleted": r.deleted, "warnings": r.warnings, "error": r.error}, indent=2))
         return 0 if r.status == "ok" else 1
+    if a.cmd == "snapshot":
+        from pathlib import Path
+        from app.snapshot.export import export_snapshot
+        with SessionLocal() as db:
+            print(f"Wrote {export_snapshot(db, Path(a.out))} jobs to {a.out}")
+        return 0
     if a.cmd == "scan":
         pipeline.run_scan_pipeline(s)
         a.cmd, a.min_score, a.limit = "jobs", 0, 20

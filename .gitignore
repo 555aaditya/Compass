@@ -12,3 +12,4 @@ resumes/generated/*
 resumes/master/*
 !resumes/master/.gitkeep
 *.db-*
+site/

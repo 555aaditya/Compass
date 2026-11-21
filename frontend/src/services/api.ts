@@ -38,6 +38,7 @@ export const api = {
   companies: () => req<Company[]>("/companies"),
   addCompany: (c: Partial<Company>) => post("/companies", c),
   patchCompany: (id: number, c: Partial<Company>) => req(`/companies/${id}`, { method: "PATCH", body: JSON.stringify(c) }),
+  careerLinks: () => req<{ company: string; url: string }[]>("/career-links"),
   runScan: () => post("/run/scan"),
   runWikiSync: () => post("/run/wiki-sync"),
   scans: () => req<any[]>("/scans"),
