@@ -132,3 +132,27 @@ def test_source_failure_is_isolated_and_tracked(db, wiki, monkeypatch):
     assert scan.source_results["Stripe"]["error"] and scan.source_results["CRED"]["kept"] == 1
     assert db.scalar(select(Company).where(Company.name == "Stripe")).consecutive_failures == 1
     assert scan.status == "ok"
+
+
+def test_smartrecruiters_prefilters_before_fetching_details():
+    from app.services.job_discovery.smartrecruiters import SmartRecruitersAdapter
+    lst = {"totalFound": 3, "content": [
+        {"id": "1", "name": "Software Engineer", "releasedDate": RECENT, "location": {"city": "Bengaluru", "country": "in"}},
+        {"id": "2", "name": "Senior Software Engineer", "releasedDate": RECENT, "location": {"city": "Bengaluru", "country": "in"}},
+        {"id": "3", "name": "Software Engineer", "releasedDate": RECENT, "location": {"city": "Austin", "country": "us"}}]}
+    detail = {"postingUrl": "https://jobs.smartrecruiters.com/acme/1", "jobAd": {"sections": {"jobDescription": {"text": "<p>Python, fresher</p>"}}}}
+    seen = []
+    def h(req):
+        seen.append(req.url.path)
+        return httpx.Response(200, json=detail if req.url.path.endswith("/1") else lst)
+    out = SmartRecruitersAdapter().fetch("Acme", "acme", httpx.Client(transport=httpx.MockTransport(h)))
+    assert [j.external_id for j in out] == ["1"] and "Python" in out[0].description_text
+    assert not any(p.endswith(("/2", "/3")) for p in seen)  # rejected postings never cost a detail request
+
+
+def test_seed_upgrades_previously_unsupported_company(db):
+    from app.models import Company
+    db.add(Company(name="Swiggy", slug="swiggy", ats="manual", board_token="", enabled=False)); db.commit()
+    seed_companies(db)
+    c = db.scalar(select(Company).where(Company.name == "Swiggy"))
+    assert (c.ats, c.board_token, c.enabled) == ("smartrecruiters", "swiggy", True)
