@@ -40,3 +40,10 @@ Verified 2026-11-22. Backend: 73 pytest tests. Frontend: 4 vitest tests, `tsc` c
   and re-import.
 - No Wellfound / YC adapter, no GitHub-API wiki mode (local checkout only), no resume side-by-side diff view in the UI
   (the `changes.md` report is downloadable).
+
+## Update 2026-11-22
+- Master resume edited in Quant-Journal (uncommitted there): GenAI Analyst title, project claims reworded per the audit, unevidenced skills removed,
+  backed skills added, new OakNorth bullets, stray `\newpage` removed. Compiles to 2 pages; 0 error-level claims.
+- `resumes/claim_overrides.json`: claims the candidate personally stands behind. Reported as "accepted", never blocking. Review before interviews.
+- `.github/workflows/scan.yml`: scheduled scan + Telegram from GitHub Actions (untested). Resume tailoring stays local.
+- `POST /api/jobs/manual`: add leads from X / LinkedIn posts by hand. No X or LinkedIn scraping (API is paid / against ToS).
