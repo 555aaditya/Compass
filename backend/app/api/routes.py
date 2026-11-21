@@ -137,6 +137,36 @@ def statuses():
     return JOB_STATUSES
 
 
+class ManualJobIn(BaseModel):
+    company: str
+    title: str
+    apply_url: str = Field(pattern=r"^https?://")
+    location: str = ""
+    description: str = ""
+    source: str = "manual"
+
+
+@router.post("/jobs/manual")
+def add_manual_job(body: ManualJobIn, db: Session = Depends(get_db)):
+    """Add a lead found elsewhere (a founder's post, a LinkedIn listing). It is scored like any other job."""
+    from app.services.candidate_profile.sync import export_profile as _export
+    from app.services.job_discovery.base import RawJob
+    from app.services.job_discovery.scan import evaluate_job
+    from app.services.job_discovery.store import slugify, upsert_job
+    from app.services.job_matching.candidate_index import CandidateIndex
+    c = db.scalar(select(Company).where(Company.name == body.company))
+    if c is None:
+        c = Company(name=body.company, slug=slugify(body.company), ats="manual", board_token="", enabled=False, priority=5)
+        db.add(c)
+        db.flush()
+    raw = RawJob(source=body.source, external_id=body.apply_url, title=body.title, company=c.name, url=body.apply_url,
+                 location=body.location, description_text=body.description)
+    job, _ = upsert_job(db, c, raw)
+    evaluate_job(db, job, CandidateIndex.from_profile(_export(db)), load_preferences(db))
+    db.commit()
+    return job_out(job, True)
+
+
 # ---- resumes --------------------------------------------------------------
 @router.post("/jobs/{job_id}/resume")
 def generate_resume(job_id: int, db: Session = Depends(get_db), s: Settings = Depends(get_settings)):

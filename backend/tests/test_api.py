@@ -92,3 +92,13 @@ def test_generate_resume_without_master_gives_actionable_error(client, jobs):
     jid = client.get("/api/jobs").json()["items"][0]["id"]
     r = client.post(f"/api/jobs/{jid}/resume")
     assert r.status_code == 409 and "import_master" in r.json()["detail"]
+
+
+def test_manual_lead_is_scored_and_rejected_when_ineligible(client, db):
+    r = client.post("/api/jobs/manual", json={"company": "Startup", "title": "Software Engineer", "apply_url": "https://x.io/j",
+                                              "location": "Bengaluru", "description": "Python. Freshers welcome."})
+    assert r.status_code == 200 and r.json()["eligibility"] == "eligible" and r.json()["source"] == "manual"
+    bad = client.post("/api/jobs/manual", json={"company": "Startup", "title": "Senior Engineer", "apply_url": "https://x.io/k",
+                                                "location": "Bengaluru"}).json()
+    assert bad["eligibility"] == "rejected" and bad["score"] is None
+    assert client.post("/api/jobs/manual", json={"company": "S", "title": "t", "apply_url": "javascript:1"}).status_code == 422
