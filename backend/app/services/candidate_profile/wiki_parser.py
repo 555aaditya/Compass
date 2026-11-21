@@ -223,8 +223,10 @@ def parse_experience(text: str, path: str) -> list[Evidence]:
     sections = split_sections(body)
     title_m = re.search(r"^#\s+(.*)", body, re.M)
     title = strip_md(title_m.group(1)) if title_m else Path(path).stem
+    from app.services.job_matching.vocab import find_terms
     out = [Evidence("experience", title, source_path=path,
-                    description=strip_md(next((v for v in body.splitlines() if v.startswith(">")), "")).lstrip("> "))]
+                    description=strip_md(next((v for v in body.splitlines() if v.startswith(">")), "")).lstrip("> "),
+                    extra={"stack_terms": sorted(find_terms(body)), "strength": "A"})]
     for heading, sec in sections.items():
         if heading.lower().startswith("claims to not make"):
             for line in sec.splitlines():

@@ -22,12 +22,18 @@ from app.workers import pipeline
 router = APIRouter(prefix="/api")
 
 
+def iso(d):
+    """SQLite returns naive datetimes; they are stored in UTC, so label them so browsers don't read them as local."""
+    from datetime import timezone
+    return (d.replace(tzinfo=timezone.utc) if d.tzinfo is None else d).isoformat()
+
+
 def job_out(j: Job, full: bool = False) -> dict:
     out = {
         "id": j.id, "company": j.company.name, "title": j.title, "location": j.location, "work_mode": j.work_mode,
         "experience_min": j.experience_min, "score": j.score, "category": j.category, "status": j.status,
         "eligibility": j.eligibility, "eligibility_reasons": j.eligibility_reasons,
-        "discovered_at": j.first_seen_at.isoformat(), "posted_at": j.posted_at.isoformat() if j.posted_at else None,
+        "discovered_at": iso(j.first_seen_at), "posted_at": iso(j.posted_at) if j.posted_at else None,
         "source": j.sources[0].source if j.sources else None, "apply_url": j.apply_url, "active": j.active,
     }
     if full:
@@ -40,7 +46,7 @@ def job_out(j: Job, full: bool = False) -> dict:
 def resume_out(r: ResumeVersion) -> dict:
     d = Path(r.directory)
     return {"id": r.id, "job_id": r.job_id, "company": r.job.company.name, "title": r.job.title, "score": r.job.score,
-            "version": r.version, "state": r.state, "approved": r.approved, "created_at": r.created_at.isoformat(),
+            "version": r.version, "state": r.state, "approved": r.approved, "created_at": iso(r.created_at),
             "files": [f for f in FILES if (d / f).is_file()]}
 
 
@@ -58,9 +64,9 @@ def overview(db: Session = Depends(get_db)):
         "strong": count(Job.category == "strong", Job.active.is_(True)),
         "shortlisted": count(Job.status == "shortlisted"), "applied": count(Job.status == "applied"),
         "interviews": count(Job.status == "interview"),
-        "last_scan": {"at": last_scan.finished_at.isoformat(), "new": last_scan.new_jobs} if last_scan and last_scan.finished_at else None,
-        "last_wiki_sync": {"at": last_wiki.finished_at.isoformat(), "pages": last_wiki.pages_seen} if last_wiki and last_wiki.finished_at else None,
-        "recent_notifications": [{"job_id": n.job_id, "channel": n.channel, "status": n.status, "at": n.sent_at.isoformat()}
+        "last_scan": {"at": iso(last_scan.finished_at), "new": last_scan.new_jobs} if last_scan and last_scan.finished_at else None,
+        "last_wiki_sync": {"at": iso(last_wiki.finished_at), "pages": last_wiki.pages_seen} if last_wiki and last_wiki.finished_at else None,
+        "recent_notifications": [{"job_id": n.job_id, "channel": n.channel, "status": n.status, "at": iso(n.sent_at)}
                                  for n in db.scalars(select(Notification).order_by(Notification.id.desc()).limit(5))],
     }
 
@@ -198,7 +204,7 @@ def profile(db: Session = Depends(get_db)):
 
 @router.get("/profile/history")
 def profile_history(db: Session = Depends(get_db)):
-    return [{"id": r.id, "started_at": r.started_at.isoformat(), "status": r.status, "pages_seen": r.pages_seen,
+    return [{"id": r.id, "started_at": iso(r.started_at), "status": r.status, "pages_seen": r.pages_seen,
              "added": r.added, "modified": r.modified, "deleted": r.deleted, "warnings": r.warnings, "error": r.error}
             for r in db.scalars(select(WikiSyncHistory).order_by(WikiSyncHistory.id.desc()).limit(20))]
 
@@ -240,7 +246,7 @@ class CompanyIn(BaseModel):
 @router.get("/companies")
 def companies(db: Session = Depends(get_db)):
     return [{"id": c.id, "name": c.name, "ats": c.ats, "board_token": c.board_token, "region": c.region,
-             "priority": c.priority, "enabled": c.enabled, "last_ok_at": c.last_ok_at.isoformat() if c.last_ok_at else None,
+             "priority": c.priority, "enabled": c.enabled, "last_ok_at": iso(c.last_ok_at) if c.last_ok_at else None,
              "last_error": c.last_error, "failures": c.consecutive_failures}
             for c in db.scalars(select(Company).order_by(Company.priority, Company.name))]
 
@@ -296,7 +302,7 @@ def run_sync_now(bg: BackgroundTasks, s: Settings = Depends(get_settings)):
 
 @router.get("/scans")
 def scans(db: Session = Depends(get_db)):
-    return [{"id": r.id, "started_at": r.started_at.isoformat(), "status": r.status, "fetched": r.fetched,
+    return [{"id": r.id, "started_at": iso(r.started_at), "status": r.status, "fetched": r.fetched,
              "new": r.new_jobs, "eligible": r.eligible, "notified": r.notified, "sources": r.source_results, "error": r.error}
             for r in db.scalars(select(ScanHistory).order_by(ScanHistory.id.desc()).limit(20))]
 

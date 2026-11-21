@@ -92,8 +92,9 @@ def score_job(*, title: str, description: str, posted_at: datetime | None, reqs:
     # projects and achievements
     job_terms = {r.term for r in reqs}
     scored_projects = []
-    for p in idx.projects:
-        pt = find_terms(" ".join(p.get("extra", {}).get("stack", [])) + " " + p["name"] + " " + p.get("description", ""))
+    for p in idx.projects + [e for e in idx.experience if e.get("extra", {}).get("stack_terms")]:
+        ex = p.get("extra", {})
+        pt = set(ex.get("stack_terms", [])) or find_terms(" ".join(ex.get("stack", [])) + " " + p["name"] + " " + p.get("description", ""))
         overlap = sorted(job_terms & pt)
         if overlap:
             strength = {"A": 1.0, "B": 0.7, "C": 0.4}.get(p.get("extra", {}).get("strength", ""), 0.5)
