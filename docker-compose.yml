@@ -1,0 +1,14 @@
+services:
+  compass:
+    build: .
+    ports: ["8000:8000"]
+    env_file: .env
+    environment:
+      DATABASE_URL: sqlite:////app/data/compass.db
+      WIKI_PATH: /wiki
+      MASTER_RESUME_PATH: /app/resumes/master/main.tex
+      GENERATED_RESUMES_PATH: /app/resumes/generated
+    volumes:
+      - ./data:/app/data
+      - ./resumes:/app/resumes
+      - ${QUANT_JOURNAL_WIKI:-~/Documents/GitHub/Quant-Journal/V2.0/10-Resume-Wiki}:/wiki:ro
