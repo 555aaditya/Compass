@@ -18,7 +18,7 @@ from app.services.job_matching.requirements import Requirement
 from app.services.resume_tailoring import latex, workspace
 from app.services.resume_tailoring.baseline import baseline_resume
 from app.services.resume_tailoring.compile import compile_tex
-from app.services.resume_tailoring.guard import ClaimGuard
+from app.services.resume_tailoring.guard import ClaimGuard, load_overrides
 from app.services.resume_tailoring.keyword_matrix import build_matrix
 
 
@@ -38,7 +38,7 @@ def prepare_resume(db: Session, job: Job, s: Settings) -> ResumeVersion:
     master = s.master_resume_path
     workspace.verify_master(master)
     profile = export_profile(db)
-    idx, guard = CandidateIndex.from_profile(profile), ClaimGuard(profile)
+    idx, guard = CandidateIndex.from_profile(profile), ClaimGuard(profile, load_overrides(s.claim_overrides_path))
     version = (db.scalar(select(ResumeVersion.version).where(ResumeVersion.job_id == job.id)
                          .order_by(ResumeVersion.version.desc())) or 0) + 1
     d = workspace.job_dir(s.generated_resumes_path, job)
@@ -81,7 +81,7 @@ def finalize_resume(db: Session, rv: ResumeVersion, s: Settings, compiler: str |
     master_tex = master.read_text(encoding="utf-8")
     tex = (d / "resume.tex").read_text(encoding="utf-8")
     profile = export_profile(db)
-    guard = ClaimGuard(profile)
+    guard = ClaimGuard(profile, load_overrides(s.claim_overrides_path))
     violations = [v.to_dict() for v in guard.check(latex.tex_to_text(tex))]
     notes = json.loads((d / "baseline_notes.json").read_text()) if (d / "baseline_notes.json").exists() else []
     (d / "changes.md").write_text(diff_mod.change_report(master_tex, tex, notes, violations), encoding="utf-8")

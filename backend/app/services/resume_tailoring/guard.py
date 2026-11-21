@@ -27,7 +27,9 @@ def _segments(phrase: str) -> list[str]:
 
 
 class ClaimGuard:
-    def __init__(self, profile: dict[str, list[dict]]):
+    def __init__(self, profile: dict[str, list[dict]], overrides: list[dict] | None = None):
+        # Claims the candidate has personally decided to stand behind: shown as 'accepted', never blocking.
+        self.overrides = [(o["phrase"].lower(), o.get("reason", "")) for o in (overrides or []) if o.get("phrase")]
         self.idx = CandidateIndex.from_profile(profile)
         self.phrases: list[tuple[str, str, str, str]] = []   # (phrase, reason, source, severity)
         self.literals: dict[str, tuple[str, str]] = {}   # lower literal -> (reason, source)
@@ -67,11 +69,23 @@ class ClaimGuard:
             st = self.idx.status(term)
             if st == "missing":
                 out.append(Violation("warning", "unsupported_term", term, "no evidence for this skill in the candidate profile"))
+        for v in out:
+            low_t = v.text.lower()
+            hit = next((r for o, r in self.overrides if o in low_t or low_t in o), None)
+            if hit is not None and v.kind != "unsupported_term":
+                v.severity, v.reason = "accepted", f"accepted by candidate: {hit or 'no reason given'} (wiki says: {v.reason})"
         seen, uniq = set(), []
-        out.sort(key=lambda v: v.severity != "error")
+        out.sort(key=lambda v: {"error": 0, "warning": 1}.get(v.severity, 2))
         for v in out:
             k = (v.kind, v.text.lower())
             if k not in seen:
                 seen.add(k)
                 uniq.append(v)
         return uniq
+
+
+def load_overrides(path) -> list[dict]:
+    import json
+    from pathlib import Path
+    p = Path(path)
+    return json.loads(p.read_text()) if p.is_file() else []
