@@ -2,7 +2,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     job_freshness_days: int = 14
     auto_generate_resumes: bool = True
     require_resume_approval: bool = True
+
+    @field_validator("wiki_path", "master_resume_path", "generated_resumes_path", mode="after")
+    @classmethod
+    def _expand(cls, v: Path) -> Path:
+        v = v.expanduser()
+        return v if v.is_absolute() else (REPO_ROOT / v).resolve()
 
     def redacted(self) -> dict:
         secret = {"github_token", "telegram_bot_token", "email_password", "whatsapp_access_token"}
