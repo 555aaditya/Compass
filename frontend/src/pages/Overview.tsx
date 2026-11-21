@@ -6,6 +6,7 @@ import { api } from "../services/api";
 
 export default function Overview() {
   const { data, error, loading, reload } = useAsync(api.overview);
+  const { data: links } = useAsync(api.careerLinks);
   const [msg, setMsg] = useState("");
   const run = async (label: string, fn: () => Promise<unknown>) => {
     setMsg("");
@@ -42,6 +43,13 @@ export default function Overview() {
           {data.recent_notifications.map((n) => (
             <p key={`${n.job_id}${n.channel}`}><Link className="text-indigo-600" to={`/jobs/${n.job_id}`}>Job {n.job_id}</Link> via {n.channel}: {n.status}, {ago(n.at)}</p>
           ))}
+        </div>
+      </div>
+      <div className="card text-sm">
+        <h2 className="mb-1 font-semibold">Career pages the app cannot scan</h2>
+        <p className="mb-2 text-slate-500">These sites block automated clients or have no public feed. Open the pre-filtered search yourself.</p>
+        <div className="flex flex-wrap gap-2">
+          {links?.map((l) => <a key={l.company} className="btn" href={l.url} target="_blank" rel="noreferrer noopener">{l.company}</a>)}
         </div>
       </div>
     </div>

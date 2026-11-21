@@ -102,3 +102,13 @@ def test_manual_lead_is_scored_and_rejected_when_ineligible(client, db):
                                                 "location": "Bengaluru"}).json()
     assert bad["eligibility"] == "rejected" and bad["score"] is None
     assert client.post("/api/jobs/manual", json={"company": "S", "title": "t", "apply_url": "javascript:1"}).status_code == 422
+
+
+def test_snapshot_contains_jobs_only(client, jobs, db, tmp_path):
+    from app.snapshot.export import export_snapshot
+    n = export_snapshot(db, tmp_path / "site", min_score=50)
+    data = (tmp_path / "site" / "jobs.json").read_text()
+    assert n == 3 and "Backend Engineer" in data
+    for forbidden in ("notes", "description", "resume", "profile", "analysis"):
+        assert forbidden not in data.lower().replace("why", "")
+    assert "noindex" in (tmp_path / "site" / "index.html").read_text()
