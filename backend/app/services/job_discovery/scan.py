@@ -58,7 +58,7 @@ def run_scan(db: Session, client: httpx.Client | None = None, only: list[str] | 
             adapter = ADAPTERS.get(c.ats)
             if adapter is None:
                 continue
-            stat = {"fetched": 0, "new": 0, "kept": 0, "rejected": 0, "error": None}
+            stat = {"fetched": 0, "new": 0, "kept": 0, "rejected": 0, "error": None, "reasons": {}}
             results[c.name] = stat
             try:
                 raws = adapter.fetch(c.name, c.board_token, client)
@@ -78,6 +78,8 @@ def run_scan(db: Session, client: httpx.Client | None = None, only: list[str] | 
                                       remote_flag=raw.remote_flag, country=raw.country)
                 if e.status == "rejected":
                     stat["rejected"] += 1
+                    key = e.reasons[0].split(":")[0].split("(")[0].strip() if e.reasons else "rejected"
+                    stat["reasons"][key] = stat["reasons"].get(key, 0) + 1
                     continue
                 job, created = upsert_job(db, c, raw, now)
                 seen_ids.add(job.id)

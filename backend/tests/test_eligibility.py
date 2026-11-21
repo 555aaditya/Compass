@@ -65,3 +65,11 @@ def test_freshness_window_and_unknown_date():
 
 def test_unpaid_rejected_unless_enabled():
     assert ev(desc="This is an unpaid role").status == "rejected"
+
+
+def test_support_and_non_engineering_titles_rejected():
+    for t in ("Customer Success Engineer", "Cloud Support Engineer (Night Shift)", "Solutions Architect",
+              "Key Account Management", "Candidate Experience Specialist", "Creative Illustrator"):
+        assert ev(t, desc="fresher").status == "rejected", t
+    for t in ("Associate Software Engineer", "Member of Technical Staff", "Data Scientist", "SDET", "Security Engineer"):
+        assert ev(t, desc="fresher").status == "eligible", t
