@@ -73,3 +73,11 @@ def test_support_and_non_engineering_titles_rejected():
         assert ev(t, desc="fresher").status == "rejected", t
     for t in ("Associate Software Engineer", "Member of Technical Staff", "Data Scientist", "SDET", "Security Engineer"):
         assert ev(t, desc="fresher").status == "eligible", t
+
+
+def test_remote_country_restriction_beats_india_mentions_in_description():
+    d = "Join our India office hours. Remote friendly. fresher"
+    for loc in ("Remote - US", "Remote - Ireland", "Remote - Estonia", "Remote, Canada"):
+        assert ev(loc=loc, desc=d).status == "rejected", loc
+    assert ev(loc="Remote - India", desc="fresher").status == "eligible"
+    assert ev("Product User Research, Intern", desc="fresher").status == "rejected"

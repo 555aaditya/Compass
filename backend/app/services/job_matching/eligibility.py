@@ -13,7 +13,7 @@ SENIOR_RE = re.compile(
 NON_TECH_RE = re.compile(
     r"\b(sales|marketing|recruit\w*|talent|account (?:executive|manager)|customer success|support specialist|"
     r"legal|counsel|finance|accountant|payroll|hr |human resources|people partner|designer|writer|"
-    r"business development|executive|operations manager|office|executive assistant|content|seo|social media|"
+    r"business development|executive|user research|\\bux\\b|researcher|operations manager|office|executive assistant|content|seo|social media|"
     r"product manager|program manager|analyst relations|solutions? consultant)\b", re.I)
 NON_SWE_RE = re.compile(
     r"\b(customer success|customer support|technical support|cloud support|support (?:engineer|specialist|analyst)|"
@@ -96,6 +96,11 @@ def check_location(location: str, description: str, mode: str, prefs: Preference
     if in_india:
         return "yes", "India location"
     if mode == "remote":
+        m = re.search(r"remote\s*[-–—,:(/]\s*([a-z][a-z .&]+)", loc)
+        if m and not re.search(r"india|anywhere|global|worldwide|apac|asia|any\b|all\b", m.group(1)):
+            return "no", f"Remote restricted to another region: '{location}'"
+        if FOREIGN_RE.search(loc) and not ANYWHERE_RE.search(f"{location} {description[:3000]}"):
+            return "no", f"Remote restricted to another region: '{location}'"
         if re.search(r"\bindia\b", description[:3000], re.I) and re.search(r"remote", description[:3000], re.I):
             return "yes", "Remote; description mentions India"
         if ANYWHERE_RE.search(f"{location} {description[:3000]}"):
