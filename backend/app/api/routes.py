@@ -318,6 +318,12 @@ def delete_company(cid: int, db: Session = Depends(get_db)):
     return {"deleted": True}
 
 
+@router.get("/career-links")
+def career_links():
+    from app.services.job_discovery.watchlist import CAREER_LINKS
+    return [{"company": k, "url": v} for k, v in CAREER_LINKS.items()]
+
+
 @router.post("/run/scan", status_code=202)
 def run_scan_now(bg: BackgroundTasks, s: Settings = Depends(get_settings)):
     bg.add_task(pipeline.run_scan_pipeline, s)

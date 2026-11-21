@@ -156,3 +156,19 @@ def test_seed_upgrades_previously_unsupported_company(db):
     seed_companies(db)
     c = db.scalar(select(Company).where(Company.name == "Swiggy"))
     assert (c.ats, c.board_token, c.enabled) == ("smartrecruiters", "swiggy", True)
+
+
+def test_amazon_and_atlassian_adapters():
+    from app.services.job_discovery.careers import AmazonAdapter, AtlassianAdapter
+    am = {"hits": 1, "jobs": [{"id_icims": "99", "title": "SDE I", "job_path": "/en/jobs/99/sde-i", "normalized_location": "Bengaluru, Karnataka, IND",
+                               "description": "<p>Build</p>", "basic_qualifications": "- Python", "posted_date": "November 20, 2026", "country_code": "IND"}]}
+    seen = {}
+    def h(req):
+        seen["q"] = str(req.url)
+        return httpx.Response(200, json=am)
+    j = AmazonAdapter().fetch("Amazon", "IND", httpx.Client(transport=httpx.MockTransport(h)))[0]
+    assert "normalized_country_code" in seen["q"] and j.url == "https://www.amazon.jobs/en/jobs/99/sde-i" and j.posted_at.year == 2026
+    at = [{"id": 5, "title": "Backend Engineer", "locations": ["Remote - India - Remote"], "overview": "<p>fresher</p>",
+           "portalJobPost": {"portalUrl": "https://careers/5", "updatedDate": "2026-11-20 07:14 AM"}}]
+    a = AtlassianAdapter().fetch("Atlassian", "", httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(200, json=at))))[0]
+    assert a.remote_flag and a.url == "https://careers/5" and "India" in a.location

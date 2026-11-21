@@ -6,6 +6,8 @@ supported board is found later.
 """
 # (name, ats, board_token, region, priority)
 VERIFIED = [
+    ("Amazon", "amazon", "IND", "india", 1),
+    ("Atlassian", "atlassian", "", "india", 1),
     ("Razorpay", "greenhouse", "razorpaysoftwareprivatelimited", "india", 1),
     ("Groww", "greenhouse", "groww", "india", 1),
     ("InMobi", "greenhouse", "inmobi", "india", 2),
@@ -78,9 +80,33 @@ VERIFIED = [
     ("Zscaler", "greenhouse", "zscaler", "global", 3),
 ]
 MANUAL = [
-    "Google", "Microsoft", "Amazon", "Atlassian", "Adobe", "Salesforce", "Oracle", "NVIDIA", "Uber", "Intuit",
+    "Google", "Microsoft", "Adobe", "Salesforce", "Oracle", "NVIDIA", "Uber", "Intuit",
     "Flipkart", "PhonePe", "Zomato", "Zepto", "Postman", "BrowserStack", "Zoho", "Juspay",
     "Chargebee", "Hasura",
 ]
 INDIA_MANUAL = {"Flipkart", "PhonePe", "Zomato", "Zepto", "Postman", "BrowserStack", "Zoho",
                 "Juspay", "Chargebee", "Hasura"}
+
+
+# Companies whose career sites block non-browser clients (Workday returns HTTP 429 even for robots.txt) or have no
+# public feed. We do not evade that; these are surfaced as one-click search links instead.
+CAREER_LINKS = {
+    "Google": "https://www.google.com/about/careers/applications/jobs/results?location=India&q=software%20engineer&target_level=EARLY",
+    "Microsoft": "https://jobs.careers.microsoft.com/global/en/search?lc=India&q=software%20engineer&exp=Students%20and%20graduates",
+    "Adobe": "https://careers.adobe.com/us/en/search-results?keywords=software%20engineer&location=India",
+    "Salesforce": "https://careers.salesforce.com/en/jobs/?search=software+engineer&country=India",
+    "Oracle": "https://careers.oracle.com/jobs/#en/sites/jobsearch/requisitions?keyword=software%20engineer&location=India",
+    "NVIDIA": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+    "Uber": "https://www.uber.com/global/en/careers/list/?query=software%20engineer&location=IND-Karnataka-Bangalore",
+    "Intuit": "https://jobs.intuit.com/search-jobs/software%20engineer/India",
+    "Flipkart": "https://www.flipkartcareers.com/",
+    "PhonePe": "https://www.phonepe.com/careers/",
+    "Zomato": "https://www.zomato.com/careers",
+    "Zepto": "https://www.zeptonow.com/careers",
+    "Postman": "https://www.postman.com/company/careers/",
+    "BrowserStack": "https://www.browserstack.com/careers",
+    "Zoho": "https://www.zoho.com/careers/",
+    "Juspay": "https://juspay.io/careers",
+    "Chargebee": "https://www.chargebee.com/company/careers/",
+    "Hasura": "https://hasura.io/careers/",
+}
