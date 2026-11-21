@@ -13,3 +13,4 @@ resumes/master/*
 !resumes/master/.gitkeep
 *.db-*
 site/
+resumes/claim_overrides.json
