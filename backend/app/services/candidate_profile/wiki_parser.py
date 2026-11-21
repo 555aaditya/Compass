@@ -15,7 +15,7 @@ DEPTH = {"●●●": "deep", "●●": "used", "●": "touched"}
 # Pages that are never candidate evidence.
 SKIP_DIRS = {"claude-memory", "readme-gaps"}
 SKIP_PREFIXES = ("scratch",)
-SKIP_FILES = {"README.md", "_TEMPLATE.md", "resume-audit.md"}
+SKIP_FILES = {"README.md", "_TEMPLATE.md"}
 
 CATEGORY_HINTS = [
     ("competitive_programming", ("competitive", "codeforces", "leetcode", "atcoder", "dsa")),
@@ -135,6 +135,12 @@ def needs_verification(text: str) -> bool:
     return "(verify)" in text.lower()
 
 
+def skill_literals(name: str) -> list[str]:
+    """'Spark / PySpark' -> ['Spark', 'PySpark']; 'Hive / Hadoop' -> ['Hive', 'Hadoop']."""
+    name = re.sub(r"\([^)]*\)", "", name)
+    return [x.strip() for x in re.split(r"\s*/\s*|,", name) if x.strip()]
+
+
 def parse_skills(text: str, path: str) -> list[Evidence]:
     out: list[Evidence] = []
     for heading, body in split_sections(text).items():
@@ -147,6 +153,7 @@ def parse_skills(text: str, path: str) -> list[Evidence]:
                     description=strip_md(row.get("reality", "")),
                     evidence=strip_md(row.get("action", "")), source_path=path,
                     verification="disputed",
+                    extra={"kind": "skill", "literals": skill_literals(name)},
                 ))
             continue
         cat = next((v for k, v in SKILL_SECTION_CATEGORY.items() if h.startswith(k)), None)
@@ -223,9 +230,10 @@ def parse_experience(text: str, path: str) -> list[Evidence]:
             for line in sec.splitlines():
                 m = re.match(r"^- \*\*(.+?)\*\*\s*(.*)", line)
                 if m:
-                    out.append(Evidence("disputed_claims", strip_md(m.group(1)).strip('"'),
-                                        description=strip_md(m.group(2)), source_path=path,
-                                        verification="disputed"))
+                    quoted = re.findall(r'"([^"]{4,})"', m.group(1)) or [strip_md(m.group(1)).strip('".')]
+                    out.append(Evidence("disputed_claims", quoted[0].strip(), description=strip_md(m.group(2)),
+                                        source_path=path, verification="disputed",
+                                        extra={"phrases": [q.strip() for q in quoted], "kind": "claim"}))
     return out
 
 
@@ -246,8 +254,29 @@ def parse_generic(text: str, path: str) -> list[Evidence]:
                      extra={"meta": meta, "ambiguous_category": ambiguous})]
 
 
+def parse_audit(text: str, path: str) -> list[Evidence]:
+    """Rows of resume-audit.md judged Wrong or Unbacked become disputed claims (never candidate skills)."""
+    out: list[Evidence] = []
+    for heading, body in split_sections(text).items():
+        for row in parse_table(body):
+            line = row.get("resume line") or row.get("listed") or ""
+            verdict = strip_md(row.get("verdict", "")).lower()
+            if verdict not in ("wrong", "unbacked"):
+                continue
+            quoted = re.findall(r'"([^"]{4,})"', line)
+            fix = strip_md(row.get("evidence and fix", ""))
+            name = strip_md(line)[:200]
+            out.append(Evidence("disputed_claims", f"{heading}: {name}", description=fix, source_path=path,
+                                verification="disputed",
+                                extra={"phrases": quoted, "kind": "audit", "verdict": verdict,
+                                       "terms": [] if quoted else [strip_md(line)]}))
+    return out
+
+
 def parse_page(rel: str, text: str) -> list[Evidence]:
     p = Path(rel)
+    if p.name == "resume-audit.md":
+        return parse_audit(text, rel)
     if p.name == "skills.md":
         return parse_skills(text, rel)
     if p.name == "profile.md":
