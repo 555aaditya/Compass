@@ -1,0 +1,38 @@
+# Scheduled scan + notify without your computer. Resume tailoring stays local (needs your master resume + a Claude session).
+# Needs a PRIVATE repo, secrets TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID, and Settings > Actions > Workflow permissions: read and write.
+# Untested: see docs/IMPLEMENTATION_STATUS.md.
+name: scan
+on:
+  schedule: [{ cron: "30 3,15 * * *" }]   # 09:00 and 21:00 IST
+  workflow_dispatch:
+permissions: { contents: write }
+concurrency: { group: scan, cancel-in-progress: false }
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: sqlite:///./data/compass.db
+      WIKI_PATH: ${{ github.workspace }}/quant-journal/V2.0/10-Resume-Wiki
+      AUTO_GENERATE_RESUMES: "false"
+      SCHEDULER_ENABLED: "false"
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4          # public wiki
+        with: { repository: 555aaditya/Quant-Journal, path: quant-journal }
+      - name: Restore state (database lives on the orphan branch "state")
+        run: |
+          mkdir -p data
+          git fetch origin state 2>/dev/null && git show origin/state:compass.db > data/compass.db || echo "no previous state"
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: backend/requirements.txt }
+      - run: pip install -r backend/requirements.txt
+      - run: cd backend && python -m app.cli sync && python -m app.cli scan
+      - name: Save state
+        run: |
+          git config user.name "compass-bot" && git config user.email "compass-bot@users.noreply.github.com"
+          d=$(mktemp -d) && cp data/compass.db "$d/compass.db" && cd "$d" && git init -q -b state
+          git add compass.db && git commit -q -m "state $(date -u +%FT%TZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" state
