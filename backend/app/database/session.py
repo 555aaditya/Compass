@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from app.core.config import get_settings
 
@@ -14,6 +15,8 @@ class Base(DeclarativeBase):
 def make_engine(url: str | None = None) -> Engine:
     url = url or get_settings().database_url
     kwargs = {"connect_args": {"check_same_thread": False}} if url.startswith("sqlite") else {}
+    if url in ("sqlite://", "sqlite:///:memory:"):
+        kwargs["poolclass"] = StaticPool  # one shared connection so in-memory DBs work across threads
     engine = create_engine(url, **kwargs)
     if url.startswith("sqlite"):
         @event.listens_for(engine, "connect")
