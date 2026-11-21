@@ -1,0 +1,11 @@
+.env
+*.db
+__pycache__/
+.venv/
+node_modules/
+dist/
+.pytest_cache/
+.DS_Store
+data/*.db
+resumes/generated/*
+!resumes/generated/.gitkeep
