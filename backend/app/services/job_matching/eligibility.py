@@ -13,7 +13,7 @@ SENIOR_RE = re.compile(
 NON_TECH_RE = re.compile(
     r"\b(sales|marketing|recruit\w*|talent|account (?:executive|manager)|customer success|support specialist|"
     r"legal|counsel|finance|accountant|payroll|hr |human resources|people partner|designer|writer|"
-    r"business development|operations manager|office|executive assistant|content|seo|social media|"
+    r"business development|executive|operations manager|office|executive assistant|content|seo|social media|"
     r"product manager|program manager|analyst relations|solutions? consultant)\b", re.I)
 NON_SWE_RE = re.compile(
     r"\b(customer success|customer support|technical support|cloud support|support (?:engineer|specialist|analyst)|"
@@ -32,7 +32,9 @@ FOREIGN_RE = re.compile(
     r"\b(united states|usa|us|u\.s\.|us only|us-based|canada|united kingdom|uk|london|germany|berlin|france|paris|"
     r"ireland|dublin|poland|warsaw|singapore|hong kong|australia|sydney|new zealand|brazil|mexico|japan|tokyo|"
     r"china|israel|netherlands|amsterdam|spain|portugal|dubai|uae|emea|latam|nyc|new york|san francisco|seattle|"
-    r"austin|boston|toronto|vancouver|bay area|europe|north america)\b", re.I)
+    r"austin|boston|toronto|vancouver|bay area|europe|north america|washington|d\.c\.|chicago|atlanta|denver|texas|"
+    r"california|colorado|virginia|massachusetts|egypt|cairo|saudi|ksa|riyadh|kenya|nigeria|south africa|turkey|"
+    r"philippines|manila|indonesia|jakarta|vietnam|thailand|bangkok|korea|seoul|taiwan|malaysia|kuala lumpur)\b", re.I)
 REMOTE_RE = re.compile(r"\bremote\b|\bwork from (?:home|anywhere)\b|\banywhere\b", re.I)
 ANYWHERE_RE = re.compile(r"\b(remote[\s,-]*(?:anywhere|worldwide|global|apac)|work from anywhere|"
                          r"anywhere in the world|worldwide)\b", re.I)
@@ -43,6 +45,7 @@ HYBRID_RE = re.compile(r"\bhybrid\b", re.I)
 class Eligibility:
     status: str = "eligible"  # eligible | uncertain | rejected
     reasons: list[str] = field(default_factory=list)
+    rejections: list[str] = field(default_factory=list)
     work_mode: str = "unknown"
     experience_min: float | None = None
     experience_max: float | None = None
@@ -52,6 +55,7 @@ class Eligibility:
     def reject(self, why: str) -> None:
         self.status = "rejected"
         self.reasons.append(why)
+        self.rejections.append(why)
 
     def flag(self, why: str) -> None:
         if self.status == "eligible":

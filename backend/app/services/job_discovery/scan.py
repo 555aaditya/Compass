@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, timezone
 
 import httpx
@@ -78,7 +79,7 @@ def run_scan(db: Session, client: httpx.Client | None = None, only: list[str] | 
                                       remote_flag=raw.remote_flag, country=raw.country)
                 if e.status == "rejected":
                     stat["rejected"] += 1
-                    key = e.reasons[0].split(":")[0].split("(")[0].strip() if e.reasons else "rejected"
+                    key = re.sub(r"\d+\+? years.*|\(.*|:.*", "", e.rejections[0]).strip() if e.rejections else "rejected"
                     stat["reasons"][key] = stat["reasons"].get(key, 0) + 1
                     continue
                 job, created = upsert_job(db, c, raw, now)
