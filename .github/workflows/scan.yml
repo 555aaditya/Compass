@@ -32,8 +32,14 @@ jobs:
         run: cd backend && python -m app.cli snapshot --out ../site
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
-      - uses: actions/deploy-pages@v4
-        continue-on-error: true   # needs Settings > Pages > Source: GitHub Actions. The page is PUBLIC; see docs/SETUP.md
       - name: Save state
         uses: actions/cache/save@v4
         with: { path: data/compass.db, key: "state-${{ github.run_id }}" }
+  deploy:
+    needs: scan
+    runs-on: ubuntu-latest
+    permissions: { pages: write, id-token: write }
+    environment: { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
