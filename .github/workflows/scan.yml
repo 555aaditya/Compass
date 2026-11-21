@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4          # PRIVATE wiki: needs a fine-grained PAT (Contents: read) in QUANT_JOURNAL_TOKEN
         with: { repository: 555aaditya/Quant-Journal, path: quant-journal, token: "${{ secrets.QUANT_JOURNAL_TOKEN }}" }
-      - name: Restore state (Actions cache: private to this repo, unlike a public branch)
+      - name: "Restore state (Actions cache, private to this repo)"
         uses: actions/cache/restore@v4
         with: { path: data/compass.db, key: state-never-matches, restore-keys: "state-" }
       - uses: actions/setup-python@v5
