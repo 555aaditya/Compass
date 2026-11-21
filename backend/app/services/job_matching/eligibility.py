@@ -96,8 +96,7 @@ def check_location(location: str, description: str, mode: str, prefs: Preference
         return "uncertain", "Remote but eligibility for India not stated"
     if not location.strip():
         return "uncertain", "No location given"
-    if FOREIGN_RE.search(loc) or True:
-        return "no", f"Location outside India: '{location}'"
+    return "no", f"Location outside India: '{location}'"
 
 
 def evaluate(title: str, location: str, description: str, posted_at: datetime | None, prefs: Preferences,
