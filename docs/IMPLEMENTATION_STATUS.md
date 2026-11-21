@@ -1,6 +1,6 @@
 # Implementation status
 
-Verified 2026-11-22. Backend: 73 pytest tests. Frontend: 4 vitest tests, `tsc` clean, production build succeeds.
+Verified 2026-11-22. Backend: 78 pytest tests. Frontend: 4 vitest tests, `tsc` clean, production build succeeds.
 
 ## Implemented and tested
 | Area | Notes |
@@ -47,3 +47,4 @@ Verified 2026-11-22. Backend: 73 pytest tests. Frontend: 4 vitest tests, `tsc` c
 - `resumes/claim_overrides.json`: claims the candidate personally stands behind. Reported as "accepted", never blocking. Review before interviews.
 - `.github/workflows/scan.yml`: scheduled scan + Telegram from GitHub Actions (untested). Resume tailoring stays local.
 - `POST /api/jobs/manual`: add leads from X / LinkedIn posts by hand. No X or LinkedIn scraping (API is paid / against ToS).
+- Watchlist widened to 69 boards (Greenhouse, Lever, Ashby, SmartRecruiters). A live scan then kept 6 jobs; remaining India-fresher yield is genuinely low.
