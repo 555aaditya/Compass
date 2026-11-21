@@ -8,6 +8,7 @@ A personal career assistant. It scans company job boards for fresher and 0-2 yea
 scores each one against what your own notes can prove, and prepares an ATS-checked LaTeX resume for the ones worth
 applying to. It never submits an application.
 
+[![CI](https://github.com/555aaditya/Compass/actions/workflows/ci.yml/badge.svg)](https://github.com/555aaditya/Compass/actions/workflows/ci.yml)
 [![Scan](https://github.com/555aaditya/Compass/actions/workflows/scan.yml/badge.svg)](https://github.com/555aaditya/Compass/actions/workflows/scan.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12-3776ab)
