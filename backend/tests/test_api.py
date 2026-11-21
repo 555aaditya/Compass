@@ -109,6 +109,6 @@ def test_snapshot_contains_jobs_only(client, jobs, db, tmp_path):
     n = export_snapshot(db, tmp_path / "site", min_score=50)
     data = (tmp_path / "site" / "jobs.json").read_text()
     assert n == 3 and "Backend Engineer" in data
-    for forbidden in ("notes", "description", "resume", "profile", "analysis"):
-        assert forbidden not in data.lower().replace("why", "")
+    for forbidden in ("notes", "description", "resume", "profile", "analysis", "why", "matches"):
+        assert forbidden not in data.lower()
     assert "noindex" in (tmp_path / "site" / "index.html").read_text()
