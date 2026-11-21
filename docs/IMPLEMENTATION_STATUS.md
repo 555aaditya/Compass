@@ -1,6 +1,6 @@
 # Implementation status
 
-Verified 2026-11-22. Backend: 72 pytest tests. Frontend: 4 vitest tests, `tsc` clean, production build succeeds.
+Verified 2026-11-22. Backend: 73 pytest tests. Frontend: 4 vitest tests, `tsc` clean, production build succeeds.
 
 ## Implemented and tested
 | Area | Notes |
@@ -18,8 +18,9 @@ Verified 2026-11-22. Backend: 72 pytest tests. Frontend: 4 vitest tests, `tsc` c
 | Scheduling | APScheduler wired in; interrupted-run recovery. Booting the app and running migrations was checked manually |
 
 ## Implemented but not verified end to end
-- **LaTeX compilation of a real resume**: no TeX distribution is installed on this machine, so `compile_tex` is only tested
-  with mocks and the no-compiler path. Install BasicTeX/MacTeX and run `scripts/resume.py finalize` once.
+- **LaTeX compilation**: verified 2026-11-22 with BasicTeX + latexmk + pdftotext on the real master (2 pages, 12 of 13
+  checks pass, 38/38 skills and 12 links extracted). BasicTeX needs `preprint` (provides `fullpage.sty`) plus
+  `latexmk enumitem titlesec marvosym fancyhdr`. Note `~/Library/texlive` user tree was used because `sudo tlmgr` was unavailable.
 - **Real Telegram / SMTP / WhatsApp delivery**: needs your credentials; only mocked.
 - **Docker image**: written, never built.
 - **Dashboard in a browser**: built and type-checked; component test only, no manual click-through.

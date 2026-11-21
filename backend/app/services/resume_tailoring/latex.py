@@ -72,6 +72,8 @@ def sections(tex: str) -> list[Section]:
 def bullets(tex: str) -> list[str]:
     """Plain text of every \\resumeItem, in document order."""
     out, s = [], strip_comments(tex)
+    if "\\begin{document}" in s:  # skip macro definitions in the preamble
+        s = s.split("\\begin{document}", 1)[1]
     for m in re.finditer(r"\\resumeItem\s*\{", s):
         inner, _ = _take_group(s, m.end() - 1)
         out.append(tex_to_text(inner).replace("\n", " ").strip())
