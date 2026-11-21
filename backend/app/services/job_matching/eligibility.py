@@ -11,7 +11,7 @@ SENIOR_RE = re.compile(
     r"\b(senior|sr\.?|staff|principal|lead|manager|director|head of|vp|vice president|architect|"
     r"distinguished|fellow|sde[\s-]*(?:iii|3|iv|4)|sde[\s-]*ii\b|sde[\s-]*2|engineer\s*(?:iii|iv|ii)\b|level\s*[3-9])\b", re.I)
 NON_TECH_RE = re.compile(
-    r"\b(sales|marketing|recruit|talent|account (?:executive|manager)|customer success|support specialist|"
+    r"\b(sales|marketing|recruit\w*|talent|account (?:executive|manager)|customer success|support specialist|"
     r"legal|counsel|finance|accountant|payroll|hr |human resources|people partner|designer|writer|"
     r"business development|operations manager|office|executive assistant|content|seo|social media|"
     r"product manager|program manager|analyst relations|solutions? consultant)\b", re.I)
@@ -24,7 +24,7 @@ YEARS_RE = re.compile(
     r"(?:\w+\s+){0,4}?(?:experience|exp\b)", re.I)
 UNPAID_RE = re.compile(r"\b(unpaid|volunteer|no stipend|without (?:pay|compensation))\b", re.I)
 FOREIGN_RE = re.compile(
-    r"\b(united states|usa|u\.s\.|us only|us-based|canada|united kingdom|uk|london|germany|berlin|france|paris|"
+    r"\b(united states|usa|us|u\.s\.|us only|us-based|canada|united kingdom|uk|london|germany|berlin|france|paris|"
     r"ireland|dublin|poland|warsaw|singapore|hong kong|australia|sydney|new zealand|brazil|mexico|japan|tokyo|"
     r"china|israel|netherlands|amsterdam|spain|portugal|dubai|uae|emea|latam|nyc|new york|san francisco|seattle|"
     r"austin|boston|toronto|vancouver|bay area|europe|north america)\b", re.I)
