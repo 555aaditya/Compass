@@ -9,3 +9,5 @@ dist/
 data/*.db
 resumes/generated/*
 !resumes/generated/.gitkeep
+resumes/master/*
+!resumes/master/.gitkeep
